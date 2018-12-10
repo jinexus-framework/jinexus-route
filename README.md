@@ -4,4 +4,4 @@
 in the entire application for jinexus-mvc applications.
 
 - File issues at https://github.com/jinexus-framework/jinexus-route/issues
-- Documentation is at https://framework.jinexus.com/jinexus-route/
+- Documentation is at https://framework.jinexus.com/documentation
