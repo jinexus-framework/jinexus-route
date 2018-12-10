@@ -2,6 +2,7 @@
 namespace JiNexus\Route\Route\Factory;
 
 use JiNexus\Route\Factory\AbstractFactory;
+use JiNexus\Route\Redirect\Factory\RedirectFactory;
 use JiNexus\Route\Route\Route;
 
 /**
@@ -11,11 +12,12 @@ use JiNexus\Route\Route\Route;
 class RouteFactory extends AbstractFactory
 {
     /**
-     * @param $routes
      * @return Route
      */
-    public static function build($routes)
+    public static function build()
     {
-        return new Route($routes);
+        $redirect = RedirectFactory::build();
+
+        return new Route($redirect);
     }
 }

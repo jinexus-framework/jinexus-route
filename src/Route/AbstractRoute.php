@@ -2,6 +2,8 @@
 namespace JiNexus\Route\Route;
 
 use JiNexus\Route\Base\AbstractBase;
+use JiNexus\Route\Exception;
+use JiNexus\Route\Redirect\RedirectInterface;
 
 /**
  * Class AbstractRoute
@@ -9,25 +11,37 @@ use JiNexus\Route\Base\AbstractBase;
  */
 abstract class AbstractRoute extends AbstractBase implements RouteInterface
 {
+    /**
+     * @var array
+     */
     protected $routes = [];
 
     /**
-     * AbstractRoute constructor
-     * @param array $routes
+     * @var RedirectInterface
      */
-    public function __construct($routes = [])
+    protected $redirect;
+
+    /**
+     * AbstractRoute constructor.
+     * @param RedirectInterface $redirect
+     */
+    public function __construct(RedirectInterface $redirect)
     {
-        $this->routes = $routes;
+        $this->redirect = $redirect;
     }
 
     /**
      * Retrieve the matching Route from URI
      *
+     * @param array $routes
+     * @param string $uri
      * @return array
      */
-    public function getMatchRoute()
+    public function getMatchRoute($routes = [], $uri = '')
     {
-        $uri = $this->getUri();
+        if (! $uri) {
+            $uri = $this->getUri();
+        }
 
         $result = [];
         foreach ($this->routes as $name => $route) {
@@ -38,6 +52,48 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @return RedirectInterface
+     */
+    public function getRedirect()
+    {
+        return $this->redirect;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
+    /**
+     * @param array $routes
+     */
+    public function setRoutes($routes = [])
+    {
+        $this->routes = $routes;
+    }
+
+    /**
+     * @param string $routeName
+     * @param array $routes
+     * @return string
+     * @throws Exception
+     */
+    public function getRouteUri($routeName = '', $routes = [])
+    {
+        $explodeRouteName = explode('/', $routeName);
+
+        if (array_key_exists(current($explodeRouteName), $routes)) {
+            return $routes[current($explodeRouteName)]['route'];
+        }
+        else {
+            throw new Exception('Route "' . $routeName . '" not found');
+        }
     }
 
     /**
