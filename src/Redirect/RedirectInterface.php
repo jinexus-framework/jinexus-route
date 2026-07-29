@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace JiNexus\Route\Redirect;
 
 use JiNexus\Route\Base\BaseInterface;
-use JiNexus\Route\Exception;
+use JiNexus\Route\RouteException;
 
 /**
  * Interface RedirectInterface
@@ -18,12 +21,12 @@ interface RedirectInterface extends BaseInterface
     /**
      * @param array $routes
      */
-    public function setRoutes($routes = []);
+    public function setRoutes(array $routes = []);
 
     /**
      * @param string $routeName
      * @param bool $permanent
-     * @throws Exception
+     * @throws RouteException
      */
-    public function toRoute($routeName = '', $permanent = false);
+    public function toRoute(string $routeName = '', bool $permanent = false);
 }

@@ -1,0 +1,11 @@
+/vendor/
+/.vagrant/
+/.idea/
+/.vscode/
+/.fleet/
+/.nova/
+/.zed/
+config/development.config.php
+/phpunit.xml
+/.phpunit.cache/
+composer.phar

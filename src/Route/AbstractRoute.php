@@ -1,8 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace JiNexus\Route\Route;
 
 use JiNexus\Route\Base\AbstractBase;
-use JiNexus\Route\Exception;
+use JiNexus\Route\RouteException;
 use JiNexus\Route\Redirect\RedirectInterface;
 
 /**
@@ -14,12 +17,16 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
     /**
      * @var array
      */
-    protected $routes = [];
+    protected array $routes = [];
 
     /**
      * @var RedirectInterface
      */
-    protected $redirect;
+    public RedirectInterface $redirect {
+        get {
+            return $this->redirect;
+        }
+    }
 
     /**
      * AbstractRoute constructor.
@@ -33,18 +40,26 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
     /**
      * Retrieve the matching Route from URI
      *
+     * Matches against $routes when one is supplied, otherwise against the routes
+     * registered through setRoutes(). Falls back to the current request URI when
+     * $uri is omitted.
+     *
      * @param array $routes
      * @param string $uri
      * @return array
      */
-    public function getMatchRoute($routes = [], $uri = '')
+    public function getMatchRoute(array $routes = [], string $uri = ''): array
     {
         if (! $uri) {
             $uri = $this->getUri();
         }
 
+        if (! $routes) {
+            $routes = $this->routes;
+        }
+
         $result = [];
-        foreach ($this->routes as $name => $route) {
+        foreach ($routes as $name => $route) {
             if ($route['route'] == $uri) {
                 $result[$name] = $route;
                 break;
@@ -55,17 +70,9 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
     }
 
     /**
-     * @return RedirectInterface
-     */
-    public function getRedirect()
-    {
-        return $this->redirect;
-    }
-
-    /**
      * @return array
      */
-    public function getRoutes()
+    public function getRoutes(): array
     {
         return $this->routes;
     }
@@ -73,26 +80,36 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
     /**
      * @param array $routes
      */
-    public function setRoutes($routes = [])
+    public function setRoutes(array $routes = []): void
     {
         $this->routes = $routes;
     }
 
     /**
+     * Resolve a route name to its URI
+     *
+     * It looks the name up in $routes when one is supplied, otherwise in the routes
+     * registered through setRoutes(). Only the first slash-separated segment of
+     * the name is used.
+     *
      * @param string $routeName
      * @param array $routes
      * @return string
-     * @throws Exception
+     * @throws RouteException
      */
-    public function getRouteUri($routeName = '', $routes = [])
+    public function getRouteUri(string $routeName = '', array $routes = []): string
     {
+        if (! $routes) {
+            $routes = $this->routes;
+        }
+
         $explodeRouteName = explode('/', $routeName);
 
         if (array_key_exists(current($explodeRouteName), $routes)) {
             return $routes[current($explodeRouteName)]['route'];
         }
         else {
-            throw new Exception('Route "' . $routeName . '" not found');
+            throw new RouteException('Route "' . $routeName . '" not found');
         }
     }
 
@@ -101,16 +118,16 @@ abstract class AbstractRoute extends AbstractBase implements RouteInterface
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
-        $basePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
+        $basePath = explode('/', $_SERVER['SCRIPT_NAME'])
+                |> (fn($x) => array_slice($x, 0, -1))
+                |> (fn($x) => implode('/', $x) . '/');
         $uri = substr($_SERVER['REQUEST_URI'], strlen($basePath));
-        if (strstr($uri, '?')) {
+        if (str_contains($uri, '?')) {
             $uri = substr($uri, 0, strpos($uri, '?'));
         }
 
-        $uri = '/' . trim($uri, '/');
-
-        return $uri;
+        return '/' . trim($uri, '/');
     }
 }

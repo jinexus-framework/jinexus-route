@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace JiNexus\Route\Factory;
 
 use JiNexus\Route\Base\AbstractBase;

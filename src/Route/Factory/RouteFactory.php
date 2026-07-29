@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace JiNexus\Route\Route\Factory;
 
 use JiNexus\Route\Factory\AbstractFactory;
@@ -14,7 +17,7 @@ class RouteFactory extends AbstractFactory
     /**
      * @return Route
      */
-    public static function build()
+    public static function build(): Route
     {
         $redirect = RedirectFactory::build();
 
